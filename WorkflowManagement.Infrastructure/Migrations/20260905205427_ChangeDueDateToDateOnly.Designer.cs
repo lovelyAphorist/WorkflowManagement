@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkflowManagement.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using WorkflowManagement.Infrastructure.Data;
 namespace WorkflowManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(WorkflowManagementDbContext))]
-    partial class WorkflowManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260905205427_ChangeDueDateToDateOnly")]
+    partial class ChangeDueDateToDateOnly
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,8 +35,7 @@ namespace WorkflowManagement.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly?>("DueDate")
                         .HasColumnType("date");
@@ -46,8 +48,7 @@ namespace WorkflowManagement.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("datetime2");

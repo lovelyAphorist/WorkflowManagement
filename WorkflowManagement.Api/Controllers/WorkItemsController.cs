@@ -39,5 +39,37 @@ namespace WorkflowManagement.Api.Controllers
                 new { id = createdWorkItem.Id },
                 createdWorkItem);
         }
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyList<WorkItemResponse>>> GetAll()
+        {
+            var workItems = await _service.GetAllAsync(new WorkItemQueryRequest());
+
+            return Ok(workItems);
+        }
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<WorkItemResponse>> Update(Guid id,UpdateWorkItemRequest request)
+        {
+            var updatedWorkItem = await _service.UpdateAsync(id, request);
+
+            if (updatedWorkItem is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedWorkItem);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _service.DeleteAsync(id);
+
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }

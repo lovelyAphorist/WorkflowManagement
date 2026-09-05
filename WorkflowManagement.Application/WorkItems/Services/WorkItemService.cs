@@ -42,6 +42,46 @@ namespace WorkflowManagement.Application.WorkItems.Services
             }
             return MapToResponse(workItem);
         }
+
+        public async Task<IReadOnlyList<WorkItemResponse>> GetAllAsync(WorkItemQueryRequest query)
+        {
+            var workItems = await _repository.GetAllAsync(query);
+
+            return workItems.Select(MapToResponse).ToList();
+        }
+        public async Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request)
+        {
+            var workItem = await _repository.GetByIdAsync(id);
+
+            if (workItem is null)
+            {
+                return null;
+            }
+
+            workItem.Title = request.Title.Trim();
+            workItem.Description = request.Description;
+            workItem.Status = request.Status.Value;
+            workItem.Priority = request.Priority.Value;
+            workItem.DueDate = request.DueDate;
+            workItem.UpdatedAtUtc = DateTime.UtcNow;
+
+            var updatedWorkItem = await _repository.UpdateAsync(workItem);
+
+            return MapToResponse(updatedWorkItem);
+        }
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var workItem = await _repository.GetByIdAsync(id);
+
+            if (workItem is null)
+            {
+                return false;
+            }
+
+            await _repository.DeleteAsync(workItem);
+
+            return true;
+        }
         private static WorkItemResponse MapToResponse(WorkItem workItem)
         {
             return new WorkItemResponse
