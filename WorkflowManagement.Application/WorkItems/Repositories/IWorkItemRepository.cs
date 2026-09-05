@@ -8,5 +8,6 @@ namespace WorkflowManagement.Application.WorkItems.Repositories
         Task<WorkItem?> GetByIdAsync(Guid id);
         Task<IReadOnlyList<WorkItem>> GetAllAsync();
         Task<WorkItem> UpdateAsync(WorkItem workItem);
+        Task DeleteAsync(WorkItem workItem);
     }
 }

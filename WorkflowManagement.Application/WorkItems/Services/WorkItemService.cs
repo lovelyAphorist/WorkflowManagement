@@ -49,9 +49,7 @@ namespace WorkflowManagement.Application.WorkItems.Services
 
             return workItems.Select(MapToResponse).ToList();
         }
-        public async Task<WorkItemResponse?> UpdateAsync(
-            Guid id,
-            UpdateWorkItemRequest request)
+        public async Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request)
         {
             var workItem = await _repository.GetByIdAsync(id);
 
@@ -70,6 +68,19 @@ namespace WorkflowManagement.Application.WorkItems.Services
             var updatedWorkItem = await _repository.UpdateAsync(workItem);
 
             return MapToResponse(updatedWorkItem);
+        }
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var workItem = await _repository.GetByIdAsync(id);
+
+            if (workItem is null)
+            {
+                return false;
+            }
+
+            await _repository.DeleteAsync(workItem);
+
+            return true;
         }
         private static WorkItemResponse MapToResponse(WorkItem workItem)
         {

@@ -40,6 +40,12 @@ namespace WorkflowManagement.Infrastructure.Repositories
 
             return workItem;
         }
+        public async Task DeleteAsync(WorkItem workItem)
+        {
+            _context.WorkItems.Remove(workItem);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
 
