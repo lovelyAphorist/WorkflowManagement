@@ -1,4 +1,5 @@
-﻿using WorkflowManagement.Application.WorkItems.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Domain.Entities;
 using WorkflowManagement.Infrastructure.Data;
 
@@ -23,6 +24,13 @@ namespace WorkflowManagement.Infrastructure.Repositories
         public async Task<WorkItem?> GetByIdAsync(Guid id)
         {
             return await _context.WorkItems.FindAsync(id);
+        }
+        public async Task<IReadOnlyList<WorkItem>> GetAllAsync()
+        {
+            return await _context.WorkItems
+                .AsNoTracking()
+                .OrderByDescending(w => w.CreatedAtUtc)
+                .ToListAsync();
         }
     }
 }

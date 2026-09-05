@@ -42,6 +42,13 @@ namespace WorkflowManagement.Application.WorkItems.Services
             }
             return MapToResponse(workItem);
         }
+
+        public async Task<IReadOnlyList<WorkItemResponse>> GetAllAsync()
+        {
+            var workItems = await _repository.GetAllAsync();
+
+            return workItems.Select(MapToResponse).ToList();
+        }
         private static WorkItemResponse MapToResponse(WorkItem workItem)
         {
             return new WorkItemResponse

@@ -12,5 +12,13 @@ namespace WorkflowManagement.Infrastructure.Data
         }
 
         public DbSet<WorkItem> WorkItems => Set<WorkItem>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(WorkflowManagementDbContext).Assembly);
+        }
     }
 }
