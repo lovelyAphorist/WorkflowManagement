@@ -1,9 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.35013.160
+# Visual Studio Version 18
+VisualStudioVersion = 18.9.12120.119 stable
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowManagement.Api", "WorkflowManagement.Api\WorkflowManagement.Api.csproj", "{EAE60240-9861-40C0-B418-64C9A10CEA74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowManagement.Domain", "WorkflowManagement.Domain\WorkflowManagement.Domain.csproj", "{9091C599-59A3-452F-B97D-24D51957C5B6}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EAE60240-9861-40C0-B418-64C9A10CEA74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAE60240-9861-40C0-B418-64C9A10CEA74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAE60240-9861-40C0-B418-64C9A10CEA74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAE60240-9861-40C0-B418-64C9A10CEA74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9091C599-59A3-452F-B97D-24D51957C5B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9091C599-59A3-452F-B97D-24D51957C5B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9091C599-59A3-452F-B97D-24D51957C5B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9091C599-59A3-452F-B97D-24D51957C5B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
