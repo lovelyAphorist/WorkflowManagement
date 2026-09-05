@@ -1,0 +1,43 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using WorkflowManagement.Application.WorkItems.Dtos;
+using WorkflowManagement.Application.WorkItems.Services;
+
+namespace WorkflowManagement.Api.Controllers
+{
+    [ApiController]
+    [Route("api/work-items")]
+    public class WorkItemsController : ControllerBase
+    {
+        private readonly IWorkItemService _service;
+
+        public WorkItemsController(IWorkItemService service)
+        {
+            _service = service;
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<WorkItemResponse>> GetById(Guid id)
+        {
+            var workItem = await _service.GetByIdAsync(id);
+
+            if (workItem is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(workItem);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<WorkItemResponse>> Create(
+            CreateWorkItemRequest request)
+        {
+            var createdWorkItem = await _service.CreateAsync(request);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = createdWorkItem.Id },
+                createdWorkItem);
+        }
+    }
+}
