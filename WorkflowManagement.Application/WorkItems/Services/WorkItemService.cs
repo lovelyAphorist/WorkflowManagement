@@ -49,7 +49,9 @@ namespace WorkflowManagement.Application.WorkItems.Services
 
             return workItems.Select(MapToResponse).ToList();
         }
-        public async Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request)
+        public async Task<WorkItemResponse?> UpdateAsync(
+            Guid id,
+            UpdateWorkItemRequest request)
         {
             var workItem = await _repository.GetByIdAsync(id);
 
@@ -57,11 +59,12 @@ namespace WorkflowManagement.Application.WorkItems.Services
             {
                 return null;
             }
-            workItem.Title = request.Title?.Trim() ?? workItem.Title;
-            workItem.Description = request.Description ?? workItem.Description;
-            workItem.Status = request.Status ?? workItem.Status;
-            workItem.Priority = request.Priority ?? workItem.Priority;
-            workItem.DueDate = request.DueDate ?? workItem.DueDate;
+
+            workItem.Title = request.Title.Trim();
+            workItem.Description = request.Description;
+            workItem.Status = request.Status.Value;
+            workItem.Priority = request.Priority.Value;
+            workItem.DueDate = request.DueDate;
             workItem.UpdatedAtUtc = DateTime.UtcNow;
 
             var updatedWorkItem = await _repository.UpdateAsync(workItem);
