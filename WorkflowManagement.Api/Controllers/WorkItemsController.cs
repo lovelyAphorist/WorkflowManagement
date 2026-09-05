@@ -42,7 +42,7 @@ namespace WorkflowManagement.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<WorkItemResponse>>> GetAll()
         {
-            var workItems = await _service.GetAllAsync();
+            var workItems = await _service.GetAllAsync(new WorkItemQueryRequest());
 
             return Ok(workItems);
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WorkflowManagement.Application.WorkItems.Dtos;
 using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Domain.Entities;
 using WorkflowManagement.Infrastructure.Data;
@@ -25,10 +26,36 @@ namespace WorkflowManagement.Infrastructure.Repositories
         {
             return await _context.WorkItems.FindAsync(id);
         }
-        public async Task<IReadOnlyList<WorkItem>> GetAllAsync()
+        public async Task<IReadOnlyList<WorkItem>> GetAllAsync(
+            WorkItemQueryRequest query)
         {
-            return await _context.WorkItems
+            var workItems = _context.WorkItems
                 .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                var search = query.Search.Trim();
+
+                workItems = workItems.Where(w =>
+                    w.Title.Contains(search) ||
+                    (w.Description != null &&
+                     w.Description.Contains(search)));
+            }
+
+            if (query.Status.HasValue)
+            {
+                workItems = workItems.Where(
+                    w => w.Status == query.Status.Value);
+            }
+
+            if (query.Priority.HasValue)
+            {
+                workItems = workItems.Where(
+                    w => w.Priority == query.Priority.Value);
+            }
+
+            return await workItems
                 .OrderByDescending(w => w.CreatedAtUtc)
                 .ToListAsync();
         }
