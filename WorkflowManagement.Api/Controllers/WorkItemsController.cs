@@ -46,5 +46,17 @@ namespace WorkflowManagement.Api.Controllers
 
             return Ok(workItems);
         }
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<WorkItemResponse>> Update(Guid id,UpdateWorkItemRequest request)
+        {
+            var updatedWorkItem = await _service.UpdateAsync(id, request);
+
+            if (updatedWorkItem is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedWorkItem);
+        }
     }
 }

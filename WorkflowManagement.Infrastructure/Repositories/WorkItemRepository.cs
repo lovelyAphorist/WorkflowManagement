@@ -32,6 +32,14 @@ namespace WorkflowManagement.Infrastructure.Repositories
                 .OrderByDescending(w => w.CreatedAtUtc)
                 .ToListAsync();
         }
+        public async Task<WorkItem> UpdateAsync(WorkItem workItem)
+        {
+            _context.WorkItems.Update(workItem);
+
+            await _context.SaveChangesAsync();
+
+            return workItem;
+        }
     }
 }
 

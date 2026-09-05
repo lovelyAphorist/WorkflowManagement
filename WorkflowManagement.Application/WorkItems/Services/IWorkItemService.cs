@@ -7,5 +7,6 @@ namespace WorkflowManagement.Application.WorkItems.Services
         Task<WorkItemResponse> CreateAsync(CreateWorkItemRequest request);
         Task<WorkItemResponse?> GetByIdAsync(Guid id);
         Task<IReadOnlyList<WorkItemResponse>> GetAllAsync();
+        Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request);
     }
 }
