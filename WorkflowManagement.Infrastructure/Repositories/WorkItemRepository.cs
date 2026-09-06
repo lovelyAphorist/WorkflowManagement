@@ -4,6 +4,7 @@ using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Domain.Entities;
 using WorkflowManagement.Infrastructure.Data;
 using WorkflowManagement.Application.Common;
+using WorkflowManagement.Application.WorkItems.Enums;
 
 namespace WorkflowManagement.Infrastructure.Repositories
 {
@@ -56,11 +57,50 @@ namespace WorkflowManagement.Infrastructure.Repositories
                     w => w.Priority == query.Priority.Value);
             }
             var totalCount = await workItems.CountAsync();
+
+            workItems = (query.SortBy, query.SortDirection) switch
+            {
+                (WorkItemSortField.CreatedAt, SortDirection.Ascending) =>
+                    workItems.OrderBy(w => w.CreatedAtUtc),
+
+                (WorkItemSortField.CreatedAt, SortDirection.Descending) =>
+                    workItems.OrderByDescending(w => w.CreatedAtUtc),
+
+                (WorkItemSortField.UpdatedAt, SortDirection.Ascending) =>
+                    workItems.OrderBy(w => w.UpdatedAtUtc),
+
+                (WorkItemSortField.UpdatedAt, SortDirection.Descending) =>
+                    workItems.OrderByDescending(w => w.UpdatedAtUtc),
+
+                (WorkItemSortField.Priority, SortDirection.Ascending) =>
+                    workItems.OrderBy(w => w.Priority),
+
+                (WorkItemSortField.Priority, SortDirection.Descending) =>
+                    workItems.OrderByDescending(w => w.Priority),
+
+                (WorkItemSortField.Title, SortDirection.Ascending) =>
+                    workItems.OrderBy(w => w.Title),
+
+                (WorkItemSortField.Title, SortDirection.Descending) =>
+                    workItems.OrderByDescending(w => w.Title),
+
+                (WorkItemSortField.DueDate, SortDirection.Ascending) =>
+                    workItems
+                        .OrderBy(w => w.DueDate == null)
+                        .ThenBy(w => w.DueDate),
+
+                (WorkItemSortField.DueDate, SortDirection.Descending) =>
+                    workItems
+                        .OrderBy(w => w.DueDate == null)
+                        .ThenByDescending(w => w.DueDate),
+
+                _ => workItems.OrderByDescending(w => w.CreatedAtUtc)
+            };
+
             var items = await workItems
-             .OrderByDescending(w => w.CreatedAtUtc)
              .Skip((query.Page - 1) * query.PageSize)
              .Take(query.PageSize)
-              .ToListAsync();
+             .ToListAsync();
 
             return new PagedResult<WorkItem>
             {
@@ -69,7 +109,7 @@ namespace WorkflowManagement.Infrastructure.Repositories
                 PageSize = query.PageSize,
                 TotalCount = totalCount,
                 TotalPages = (int)Math.Ceiling(
-        totalCount / (double)query.PageSize)
+                totalCount / (double)query.PageSize)
             };
 
             /*            return await workItems
