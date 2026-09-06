@@ -30,5 +30,20 @@ namespace WorkflowManagement.Api.Controllers
 
             return StatusCode(StatusCodes.Status201Created, result.User);
         }
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginResult>> Login(LoginRequest request)
+        {
+            var result = await _userService.LoginAsync(request);
+
+            if (!result.Succeeded)
+            {
+                return Unauthorized(new
+                {
+                    errors = result.Errors
+                });
+            }
+
+            return Ok(result);
+        }
     }
 }
