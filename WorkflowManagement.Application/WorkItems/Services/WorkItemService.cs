@@ -61,7 +61,9 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 TotalPages = result.TotalPages
             };
         }
-        public async Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request)
+        public async Task<WorkItemResponse?> UpdateAsync(
+            Guid id,
+            UpdateWorkItemRequest request)
         {
             var workItem = await _repository.GetByIdAsync(id);
 
@@ -70,17 +72,94 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 return null;
             }
 
-            workItem.Title = request.Title.Trim();
+            var changedAtUtc = DateTime.UtcNow;
+            var newTitle = request.Title.Trim();
+
+            var historyEntries = new List<WorkItemHistory>();
+
+            if (workItem.Status != request.Status.Value)
+            {
+                historyEntries.Add(new WorkItemHistory
+                {
+                    Id = Guid.NewGuid(),
+                    WorkItemId = workItem.Id,
+                    ChangeType = WorkItemChangeType.Status,
+                    OldValue = workItem.Status.ToString(),
+                    NewValue = request.Status.Value.ToString(),
+                    ChangedAtUtc = changedAtUtc
+                });
+            }
+
+            if (workItem.Priority != request.Priority.Value)
+            {
+                historyEntries.Add(new WorkItemHistory
+                {
+                    Id = Guid.NewGuid(),
+                    WorkItemId = workItem.Id,
+                    ChangeType = WorkItemChangeType.Priority,
+                    OldValue = workItem.Priority.ToString(),
+                    NewValue = request.Priority.Value.ToString(),
+                    ChangedAtUtc = changedAtUtc
+                });
+            }
+
+            if (workItem.Title != newTitle)
+            {
+                historyEntries.Add(new WorkItemHistory
+                {
+                    Id = Guid.NewGuid(),
+                    WorkItemId = workItem.Id,
+                    ChangeType = WorkItemChangeType.Title,
+                    OldValue = workItem.Title,
+                    NewValue = newTitle,
+                    ChangedAtUtc = changedAtUtc
+                });
+            }
+
+            if (workItem.Description != request.Description)
+            {
+                historyEntries.Add(new WorkItemHistory
+                {
+                    Id = Guid.NewGuid(),
+                    WorkItemId = workItem.Id,
+                    ChangeType = WorkItemChangeType.Description,
+                    OldValue = workItem.Description,
+                    NewValue = request.Description,
+                    ChangedAtUtc = changedAtUtc
+                });
+            }
+
+            if (workItem.DueDate != request.DueDate)
+            {
+                historyEntries.Add(new WorkItemHistory
+                {
+                    Id = Guid.NewGuid(),
+                    WorkItemId = workItem.Id,
+                    ChangeType = WorkItemChangeType.DueDate,
+                    OldValue = workItem.DueDate?.ToString("yyyy-MM-dd"),
+                    NewValue = request.DueDate?.ToString("yyyy-MM-dd"),
+                    ChangedAtUtc = changedAtUtc
+                });
+            }
+
+            if (historyEntries.Count == 0)
+            {
+                return MapToResponse(workItem);
+            }
+
+            workItem.Title = newTitle;
             workItem.Description = request.Description;
             workItem.Status = request.Status.Value;
             workItem.Priority = request.Priority.Value;
             workItem.DueDate = request.DueDate;
-            workItem.UpdatedAtUtc = DateTime.UtcNow;
+            workItem.UpdatedAtUtc = changedAtUtc;
 
-            var updatedWorkItem = await _repository.UpdateAsync(workItem);
+            var updatedWorkItem =
+                await _repository.UpdateAsync(workItem, historyEntries);
 
             return MapToResponse(updatedWorkItem);
         }
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             var workItem = await _repository.GetByIdAsync(id);

@@ -112,14 +112,21 @@ namespace WorkflowManagement.Infrastructure.Repositories
                 totalCount / (double)query.PageSize)
             };
         }
-        public async Task<WorkItem> UpdateAsync(WorkItem workItem)
+
+        public async Task<WorkItem> UpdateAsync(
+            WorkItem workItem,
+            IReadOnlyCollection<WorkItemHistory> historyEntries)
         {
-            _context.WorkItems.Update(workItem);
+            if (historyEntries.Count > 0)
+            {
+                _context.WorkItemHistory.AddRange(historyEntries);
+            }
 
             await _context.SaveChangesAsync();
 
             return workItem;
         }
+
         public async Task DeleteAsync(WorkItem workItem)
         {
             _context.WorkItems.Remove(workItem);
