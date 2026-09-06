@@ -11,5 +11,6 @@ namespace WorkflowManagement.Application.WorkItems.Repositories
         Task<PagedResult<WorkItem>> GetAllAsync(WorkItemQueryRequest query);
         Task<WorkItem> UpdateAsync(WorkItem workItem, IReadOnlyCollection<WorkItemHistory> historyEntries);
         Task DeleteAsync(WorkItem workItem);
+        Task<IReadOnlyList<WorkItemHistory>> GetHistoryAsync(Guid workItemId);
     }
 }

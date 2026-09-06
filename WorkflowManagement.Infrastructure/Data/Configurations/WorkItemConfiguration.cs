@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WorkflowManagement.Domain.Entities;
+using WorkflowManagement.Infrastructure.Identity;
 
 namespace WorkflowManagement.Infrastructure.Data.Configurations
 {
@@ -16,6 +17,11 @@ namespace WorkflowManagement.Infrastructure.Data.Configurations
 
             builder.Property(w => w.Description)
                 .HasMaxLength(2000);
+
+            builder.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(w => w.AssigneeId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

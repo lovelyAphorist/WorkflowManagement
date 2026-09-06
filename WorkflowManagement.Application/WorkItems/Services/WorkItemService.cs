@@ -187,5 +187,31 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 UpdatedAtUtc = workItem.UpdatedAtUtc
             };
         }
+        private static WorkItemHistoryResponse MapHistoryToResponse(WorkItemHistory history)
+        {
+            return new WorkItemHistoryResponse
+            {
+                Id = history.Id,
+                ChangeType = history.ChangeType,
+                OldValue = history.OldValue,
+                NewValue = history.NewValue,
+                ChangedAtUtc = history.ChangedAtUtc
+            };
+        }
+        public async Task<IReadOnlyList<WorkItemHistoryResponse>?> GetHistoryAsync(Guid id)
+        {
+            var workItem = await _repository.GetByIdAsync(id);
+
+            if (workItem is null)
+            {
+                return null;
+            }
+
+            var history = await _repository.GetHistoryAsync(id);
+
+            return history
+                .Select(MapHistoryToResponse)
+                .ToList();
+        }
     }
 }
