@@ -1,11 +1,12 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using WorkflowManagement.Application.Users.Services;
 using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Application.WorkItems.Services;
 using WorkflowManagement.Infrastructure.Data;
-using WorkflowManagement.Infrastructure.Repositories;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Identity;
 using WorkflowManagement.Infrastructure.Identity;
+using WorkflowManagement.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ builder.Services.AddDbContext<WorkflowManagementDbContext>(options =>
 // Add repository and service registrations
 builder.Services.AddScoped<IWorkItemRepository, WorkItemRepository>();
 builder.Services.AddScoped<IWorkItemService, WorkItemService>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services
     .AddIdentityCore<ApplicationUser>(options =>
