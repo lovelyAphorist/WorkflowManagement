@@ -40,9 +40,9 @@ namespace WorkflowManagement.Api.Controllers
                 createdWorkItem);
         }
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<WorkItemResponse>>> GetAll()
+        public async Task<ActionResult<IReadOnlyList<WorkItemResponse>>> GetAll([FromQuery] WorkItemQueryRequest query)
         {
-            var workItems = await _service.GetAllAsync(new WorkItemQueryRequest());
+            var workItems = await _service.GetAllAsync(query);
 
             return Ok(workItems);
         }
