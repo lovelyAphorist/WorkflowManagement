@@ -111,10 +111,6 @@ namespace WorkflowManagement.Infrastructure.Repositories
                 TotalPages = (int)Math.Ceiling(
                 totalCount / (double)query.PageSize)
             };
-
-            /*            return await workItems
-                            .OrderByDescending(w => w.CreatedAtUtc)
-                            .ToListAsync();*/
         }
         public async Task<WorkItem> UpdateAsync(WorkItem workItem)
         {
