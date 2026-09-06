@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WorkflowManagement.Application.Common;
 using WorkflowManagement.Application.WorkItems.Dtos;
 using WorkflowManagement.Application.WorkItems.Services;
 
@@ -39,12 +40,13 @@ namespace WorkflowManagement.Api.Controllers
                 new { id = createdWorkItem.Id },
                 createdWorkItem);
         }
-        [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<WorkItemResponse>>> GetAll()
-        {
-            var workItems = await _service.GetAllAsync(new WorkItemQueryRequest());
 
-            return Ok(workItems);
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<WorkItemResponse>>> GetAll([FromQuery] WorkItemQueryRequest query)
+        {
+            var result = await _service.GetAllAsync(query);
+
+            return Ok(result);
         }
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<WorkItemResponse>> Update(Guid id,UpdateWorkItemRequest request)

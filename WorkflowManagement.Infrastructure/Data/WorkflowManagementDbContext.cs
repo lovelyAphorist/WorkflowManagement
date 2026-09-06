@@ -12,6 +12,7 @@ namespace WorkflowManagement.Infrastructure.Data
         }
 
         public DbSet<WorkItem> WorkItems => Set<WorkItem>();
+        public DbSet<WorkItemHistory> WorkItemHistory => Set<WorkItemHistory>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
