@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using WorkflowManagement.Application.Users.Dtos;
 using WorkflowManagement.Application.Users.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace WorkflowManagement.Infrastructure.Identity
 {
@@ -91,6 +92,7 @@ namespace WorkflowManagement.Infrastructure.Identity
                 }
             };
         }
+
         private static LoginResult InvalidLogin()
         {
             return new LoginResult
@@ -101,6 +103,34 @@ namespace WorkflowManagement.Infrastructure.Identity
             "Invalid email or password."
         }
             };
+        }
+
+        public async Task<IReadOnlyList<UserResponse>> GetAllAsync()
+        {
+            return await _userManager.Users
+                .AsNoTracking()
+                .OrderBy(u => u.DisplayName)
+                .Select(u => new UserResponse
+                {
+                    Id = u.Id,
+                    DisplayName = u.DisplayName,
+                    Email = u.Email!
+                })
+                .ToListAsync();
+        }
+
+        public async Task<UserResponse?> GetByIdAsync(Guid id)
+        {
+            return await _userManager.Users
+                .AsNoTracking()
+                .Where(u => u.Id == id)
+                .Select(u => new UserResponse
+                {
+                    Id = u.Id,
+                    DisplayName = u.DisplayName,
+                    Email = u.Email!
+                })
+                .SingleOrDefaultAsync();
         }
     }
 }
