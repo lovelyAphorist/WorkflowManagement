@@ -2,11 +2,13 @@
 using WorkflowManagement.Application.Common;
 using WorkflowManagement.Application.WorkItems.Dtos;
 using WorkflowManagement.Application.WorkItems.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WorkflowManagement.Api.Controllers
 {
     [ApiController]
     [Route("api/work-items")]
+    [Authorize]
     public class WorkItemsController : ControllerBase
     {
         private readonly IWorkItemService _service;
