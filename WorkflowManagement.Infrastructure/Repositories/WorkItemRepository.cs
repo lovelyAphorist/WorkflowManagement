@@ -133,6 +133,14 @@ namespace WorkflowManagement.Infrastructure.Repositories
 
             await _context.SaveChangesAsync();
         }
+        public async Task<IReadOnlyList<WorkItemHistory>> GetHistoryAsync(Guid workItemId)
+        {
+            return await _context.WorkItemHistory
+                .AsNoTracking()
+                .Where(h => h.WorkItemId == workItemId)
+                .OrderByDescending(h => h.ChangedAtUtc)
+                .ToListAsync();
+        }
     }
 }
 

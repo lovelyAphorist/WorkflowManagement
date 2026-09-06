@@ -4,6 +4,8 @@ using WorkflowManagement.Application.WorkItems.Services;
 using WorkflowManagement.Infrastructure.Data;
 using WorkflowManagement.Infrastructure.Repositories;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
+using WorkflowManagement.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,22 @@ builder.Services.AddDbContext<WorkflowManagementDbContext>(options =>
 // Add repository and service registrations
 builder.Services.AddScoped<IWorkItemRepository, WorkItemRepository>();
 builder.Services.AddScoped<IWorkItemService, WorkItemService>();
+
+builder.Services
+    .AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+
+        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+    })
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<WorkflowManagementDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 

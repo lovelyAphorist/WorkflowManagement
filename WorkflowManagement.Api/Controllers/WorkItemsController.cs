@@ -73,5 +73,17 @@ namespace WorkflowManagement.Api.Controllers
 
             return NoContent();
         }
+        [HttpGet("{id:guid}/history")]
+        public async Task<ActionResult<IReadOnlyList<WorkItemHistoryResponse>>> GetHistory(Guid id)
+        {
+            var history = await _service.GetHistoryAsync(id);
+
+            if (history is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(history);
+        }
     }
 }
