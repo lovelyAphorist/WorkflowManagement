@@ -1,6 +1,6 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 using WorkflowManagement.Application.Users.Services;
 using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Application.WorkItems.Services;
@@ -10,27 +10,27 @@ using WorkflowManagement.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add controllers and configure JSON serialization.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter(allowIntegerValues: false));
     });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger / OpenAPI.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add Entity Framework services
+// Database.
 builder.Services.AddDbContext<WorkflowManagementDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add repository and service registrations
-builder.Services.AddScoped<IWorkItemRepository, WorkItemRepository>();
-builder.Services.AddScoped<IWorkItemService, WorkItemService>();
+// Required by ASP.NET Identity token providers.
+builder.Services.AddDataProtection();
 
-builder.Services.AddScoped<IUserService, UserService>();
-
+// ASP.NET Core Identity.
 builder.Services
     .AddIdentityCore<ApplicationUser>(options =>
     {
@@ -46,6 +46,11 @@ builder.Services
     .AddEntityFrameworkStores<WorkflowManagementDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+// Application services.
+builder.Services.AddScoped<IWorkItemRepository, WorkItemRepository>();
+builder.Services.AddScoped<IWorkItemService, WorkItemService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
