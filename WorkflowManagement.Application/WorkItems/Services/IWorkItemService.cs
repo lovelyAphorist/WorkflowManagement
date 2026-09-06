@@ -1,4 +1,5 @@
-﻿using WorkflowManagement.Application.WorkItems.Dtos;
+﻿using WorkflowManagement.Application.Common;
+using WorkflowManagement.Application.WorkItems.Dtos;
 using WorkflowManagement.Domain.Entities;
 
 namespace WorkflowManagement.Application.WorkItems.Services
@@ -7,7 +8,7 @@ namespace WorkflowManagement.Application.WorkItems.Services
     {
         Task<WorkItemResponse> CreateAsync(CreateWorkItemRequest request);
         Task<WorkItemResponse?> GetByIdAsync(Guid id);
-        Task<IReadOnlyList<WorkItemResponse>> GetAllAsync(WorkItemQueryRequest query);
+        Task<PagedResult<WorkItemResponse>> GetAllAsync(WorkItemQueryRequest query);
         Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request);
         Task<bool> DeleteAsync(Guid id);
     }

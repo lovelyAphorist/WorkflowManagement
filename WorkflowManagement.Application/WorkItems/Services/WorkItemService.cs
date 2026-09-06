@@ -2,6 +2,7 @@
 using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Domain.Entities;
 using WorkflowManagement.Domain.Enums;
+using WorkflowManagement.Application.Common;
 
 namespace WorkflowManagement.Application.WorkItems.Services
 {
@@ -43,11 +44,22 @@ namespace WorkflowManagement.Application.WorkItems.Services
             return MapToResponse(workItem);
         }
 
-        public async Task<IReadOnlyList<WorkItemResponse>> GetAllAsync(WorkItemQueryRequest query)
+        public async Task<PagedResult<WorkItemResponse>> GetAllAsync(
+            WorkItemQueryRequest query)
         {
-            var workItems = await _repository.GetAllAsync(query);
+            var result = await _repository.GetAllAsync(query);
 
-            return workItems.Select(MapToResponse).ToList();
+            return new PagedResult<WorkItemResponse>
+            {
+                Items = result.Items
+                    .Select(MapToResponse)
+                    .ToList(),
+
+                Page = result.Page,
+                PageSize = result.PageSize,
+                TotalCount = result.TotalCount,
+                TotalPages = result.TotalPages
+            };
         }
         public async Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request)
         {

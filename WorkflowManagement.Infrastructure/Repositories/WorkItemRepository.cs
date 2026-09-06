@@ -3,6 +3,7 @@ using WorkflowManagement.Application.WorkItems.Dtos;
 using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Domain.Entities;
 using WorkflowManagement.Infrastructure.Data;
+using WorkflowManagement.Application.Common;
 
 namespace WorkflowManagement.Infrastructure.Repositories
 {
@@ -26,7 +27,7 @@ namespace WorkflowManagement.Infrastructure.Repositories
         {
             return await _context.WorkItems.FindAsync(id);
         }
-        public async Task<IReadOnlyList<WorkItem>> GetAllAsync(
+        public async Task<PagedResult<WorkItem>> GetAllAsync(
             WorkItemQueryRequest query)
         {
             var workItems = _context.WorkItems
@@ -54,10 +55,26 @@ namespace WorkflowManagement.Infrastructure.Repositories
                 workItems = workItems.Where(
                     w => w.Priority == query.Priority.Value);
             }
+            var totalCount = await workItems.CountAsync();
+            var items = await workItems
+             .OrderByDescending(w => w.CreatedAtUtc)
+             .Skip((query.Page - 1) * query.PageSize)
+             .Take(query.PageSize)
+              .ToListAsync();
 
-            return await workItems
-                .OrderByDescending(w => w.CreatedAtUtc)
-                .ToListAsync();
+            return new PagedResult<WorkItem>
+            {
+                Items = items,
+                Page = query.Page,
+                PageSize = query.PageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(
+        totalCount / (double)query.PageSize)
+            };
+
+            /*            return await workItems
+                            .OrderByDescending(w => w.CreatedAtUtc)
+                            .ToListAsync();*/
         }
         public async Task<WorkItem> UpdateAsync(WorkItem workItem)
         {
