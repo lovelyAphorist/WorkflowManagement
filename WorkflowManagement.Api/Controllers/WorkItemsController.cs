@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WorkflowManagement.Application.Common;
 using WorkflowManagement.Application.WorkItems.Dtos;
+using WorkflowManagement.Application.WorkItems.Enums;
 using WorkflowManagement.Application.WorkItems.Services;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WorkflowManagement.Api.Controllers
 {
@@ -86,6 +87,31 @@ namespace WorkflowManagement.Api.Controllers
             }
 
             return Ok(history);
+        }
+        [HttpPut("{id:guid}/assignee")]
+        public async Task<ActionResult<WorkItemResponse>> Assign(Guid id, AssignWorkItemRequest request)
+        {
+            var result = await _service.AssignAsync(id, request);
+
+            return result.Status switch
+            {
+                AssignWorkItemStatus.Success =>
+                    Ok(result.WorkItem),
+
+                AssignWorkItemStatus.WorkItemNotFound =>
+                    NotFound(new
+                    {
+                        message = "Work item not found."
+                    }),
+
+                AssignWorkItemStatus.AssigneeNotFound =>
+                    BadRequest(new
+                    {
+                        message = "Assignee not found."
+                    }),
+
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
         }
     }
 }

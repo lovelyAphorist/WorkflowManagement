@@ -12,5 +12,6 @@ namespace WorkflowManagement.Application.WorkItems.Dtos
         public DateOnly? DueDate { get; set; }
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
+        public Guid? AssigneeId { get; set; }
     }
 }

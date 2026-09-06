@@ -10,6 +10,7 @@ namespace WorkflowManagement.Domain.Enums
         Description,
         Status,
         Priority,
-        DueDate
+        DueDate,
+        Assignee
     }
 }

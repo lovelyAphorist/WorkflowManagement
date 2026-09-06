@@ -1,18 +1,23 @@
-﻿using WorkflowManagement.Application.WorkItems.Dtos;
+﻿using WorkflowManagement.Application.Common;
+using WorkflowManagement.Application.Users.Dtos;
+using WorkflowManagement.Application.Users.Services;
+using WorkflowManagement.Application.WorkItems.Dtos;
+using WorkflowManagement.Application.WorkItems.Enums;
 using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Domain.Entities;
 using WorkflowManagement.Domain.Enums;
-using WorkflowManagement.Application.Common;
 
 namespace WorkflowManagement.Application.WorkItems.Services
 {
     public class WorkItemService : IWorkItemService
     {
         private readonly IWorkItemRepository _repository;
+        private readonly IUserService _userService;
 
-        public WorkItemService(IWorkItemRepository repository)
+        public WorkItemService(IWorkItemRepository repository, IUserService userService)
         {
             _repository = repository;
+            _userService = userService;
         }
         public async Task<WorkItemResponse> CreateAsync(CreateWorkItemRequest request)
         {
@@ -183,6 +188,7 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 Status = workItem.Status,
                 Priority = workItem.Priority,
                 DueDate = workItem.DueDate,
+                AssigneeId = workItem.AssigneeId,
                 CreatedAtUtc = workItem.CreatedAtUtc,
                 UpdatedAtUtc = workItem.UpdatedAtUtc
             };
@@ -212,6 +218,76 @@ namespace WorkflowManagement.Application.WorkItems.Services
             return history
                 .Select(MapHistoryToResponse)
                 .ToList();
+        }
+        public async Task<AssignWorkItemResult> AssignAsync(Guid id, AssignWorkItemRequest request)
+        {
+            var workItem = await _repository.GetByIdAsync(id);
+
+            if (workItem is null)
+            {
+                return new AssignWorkItemResult
+                {
+                    Status = AssignWorkItemStatus.WorkItemNotFound
+                };
+            }
+
+            if (workItem.AssigneeId == request.AssigneeId)
+            {
+                return new AssignWorkItemResult
+                {
+                    Status = AssignWorkItemStatus.Success,
+                    WorkItem = MapToResponse(workItem)
+                };
+            }
+
+            UserResponse? newAssignee = null;
+
+            if (request.AssigneeId.HasValue)
+            {
+                newAssignee = await _userService.GetByIdAsync(
+                    request.AssigneeId.Value);
+
+                if (newAssignee is null)
+                {
+                    return new AssignWorkItemResult
+                    {
+                        Status = AssignWorkItemStatus.AssigneeNotFound
+                    };
+                }
+            }
+
+            UserResponse? oldAssignee = null;
+
+            if (workItem.AssigneeId.HasValue)
+            {
+                oldAssignee = await _userService.GetByIdAsync(
+                    workItem.AssigneeId.Value);
+            }
+
+            var changedAtUtc = DateTime.UtcNow;
+
+            var historyEntries = new List<WorkItemHistory>
+           {
+              new WorkItemHistory
+                {
+                Id = Guid.NewGuid(),
+                WorkItemId = workItem.Id,
+                ChangeType = WorkItemChangeType.Assignee,
+                OldValue = oldAssignee?.DisplayName,
+                NewValue = newAssignee?.DisplayName,
+                ChangedAtUtc = changedAtUtc
+            }
+    };
+            workItem.AssigneeId = request.AssigneeId;
+            workItem.UpdatedAtUtc = changedAtUtc;
+
+            var updatedWorkItem = await _repository.UpdateAsync(workItem, historyEntries);
+
+            return new AssignWorkItemResult
+            {
+                Status = AssignWorkItemStatus.Success,
+                WorkItem = MapToResponse(updatedWorkItem)
+            };
         }
     }
 }
