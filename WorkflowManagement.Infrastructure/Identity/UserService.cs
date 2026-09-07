@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using WorkflowManagement.Application.Users.Constants;
 using WorkflowManagement.Application.Users.Dtos;
 using WorkflowManagement.Application.Users.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace WorkflowManagement.Infrastructure.Identity
 {
@@ -28,16 +29,16 @@ namespace WorkflowManagement.Infrastructure.Identity
                 Email = request.Email.Trim()
             };
 
-            var result = await _userManager.CreateAsync(
-                user,
-                request.Password);
+            var roleResult = await _userManager.AddToRoleAsync(
+    user,
+    AppRoles.Member);
 
-            if (!result.Succeeded)
+            if (!roleResult.Succeeded)
             {
                 return new RegisterUserResult
                 {
                     Succeeded = false,
-                    Errors = result.Errors
+                    Errors = roleResult.Errors
                         .Select(e => e.Description)
                         .ToList()
                 };
@@ -58,6 +59,7 @@ namespace WorkflowManagement.Infrastructure.Identity
         {
             var user = await _userManager.FindByEmailAsync(
                 request.Email.Trim());
+            var roles = await _userManager.GetRolesAsync(user);
 
             if (user is null)
             {
@@ -77,7 +79,8 @@ namespace WorkflowManagement.Infrastructure.Identity
             var token = _tokenService.GenerateToken(
                 user.Id,
                 user.Email!,
-                user.DisplayName);
+                user.DisplayName,
+                roles);
 
             return new LoginResult
             {
@@ -131,6 +134,24 @@ namespace WorkflowManagement.Infrastructure.Identity
                     Email = u.Email!
                 })
                 .SingleOrDefaultAsync();
+        }
+
+        public async Task<IReadOnlyList<UserResponse>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            var userIds = ids
+                .Distinct()
+                .ToList();
+
+            return await _userManager.Users
+                .AsNoTracking()
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new UserResponse
+                {
+                    Id = u.Id,
+                    DisplayName = u.DisplayName,
+                    Email = u.Email!
+                })
+                .ToListAsync();
         }
     }
 }

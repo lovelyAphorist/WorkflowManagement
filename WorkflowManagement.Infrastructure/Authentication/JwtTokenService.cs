@@ -17,7 +17,7 @@ namespace WorkflowManagement.Infrastructure.Authentication
             _options = options.Value;
         }
 
-        public TokenResult GenerateToken(Guid userId, string email, string displayName)
+       public TokenResult GenerateToken(Guid userId, string email, string displayName, IEnumerable<string> roles)
         {
             var expiresAtUtc =
                 DateTime.UtcNow.AddMinutes(_options.ExpirationMinutes);
@@ -33,6 +33,9 @@ namespace WorkflowManagement.Infrastructure.Authentication
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
+            claims.AddRange(
+            roles.Select(role =>
+            new Claim(ClaimTypes.Role, role)));
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

@@ -12,5 +12,6 @@ namespace WorkflowManagement.Application.WorkItems.Services
         Task<WorkItemResponse?> UpdateAsync(Guid id, UpdateWorkItemRequest request);
         Task<bool> DeleteAsync(Guid id);
         Task<IReadOnlyList<WorkItemHistoryResponse>?> GetHistoryAsync(Guid id);
+        Task<AssignWorkItemResult> AssignAsync(Guid id, AssignWorkItemRequest request);
     }
 }
