@@ -5,6 +5,6 @@ namespace WorkflowManagement.Application.Users.Services
 {
     public interface ITokenService
     {
-        TokenResult GenerateToken(Guid userId, string email, string displayName);
+        TokenResult GenerateToken(Guid userId, string email, string displayName, IEnumerable<string> roles);
     }
 }

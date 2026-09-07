@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkflowManagement.Application.Common;
+using WorkflowManagement.Application.Users.Constants;
 using WorkflowManagement.Application.WorkItems.Dtos;
 using WorkflowManagement.Application.WorkItems.Enums;
 using WorkflowManagement.Application.WorkItems.Services;
@@ -65,6 +66,7 @@ namespace WorkflowManagement.Api.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var deleted = await _service.DeleteAsync(id);
@@ -89,6 +91,7 @@ namespace WorkflowManagement.Api.Controllers
             return Ok(history);
         }
         [HttpPut("{id:guid}/assignee")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<ActionResult<WorkItemResponse>> Assign(Guid id, AssignWorkItemRequest request)
         {
             var result = await _service.AssignAsync(id, request);
