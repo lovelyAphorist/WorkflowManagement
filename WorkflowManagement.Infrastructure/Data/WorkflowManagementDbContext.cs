@@ -14,6 +14,7 @@ namespace WorkflowManagement.Infrastructure.Data
 
         public DbSet<WorkItem> WorkItems => Set<WorkItem>();
         public DbSet<WorkItemHistory> WorkItemHistory => Set<WorkItemHistory>();
+        public DbSet<WorkItemComment> WorkItemComments => Set<WorkItemComment>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
