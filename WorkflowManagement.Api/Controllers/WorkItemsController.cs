@@ -5,6 +5,7 @@ using WorkflowManagement.Application.Users.Constants;
 using WorkflowManagement.Application.WorkItems.Dtos;
 using WorkflowManagement.Application.WorkItems.Enums;
 using WorkflowManagement.Application.WorkItems.Services;
+using System.Security.Claims;
 
 namespace WorkflowManagement.Api.Controllers
 {
@@ -14,10 +15,12 @@ namespace WorkflowManagement.Api.Controllers
     public class WorkItemsController : ControllerBase
     {
         private readonly IWorkItemService _service;
+        private readonly IWorkItemCommentService _commentService;
 
-        public WorkItemsController(IWorkItemService service)
+        public WorkItemsController(IWorkItemService service, IWorkItemCommentService commentService)
         {
             _service = service;
+            _commentService = commentService;
         }
 
         [HttpGet("{id:guid}")]
@@ -114,6 +117,106 @@ namespace WorkflowManagement.Api.Controllers
                     }),
 
                 _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
+        }
+
+        [HttpGet("{id:guid}/comments")]
+        public async Task<ActionResult<IReadOnlyList<WorkItemCommentResponse>>> GetComments(Guid id)
+        {
+            var comments = await _commentService.GetAllAsync(id);
+
+            if (comments is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(comments);
+        }
+
+        [HttpPost("{id:guid}/comments")]
+        public async Task<ActionResult<WorkItemCommentResponse>> CreateComment(
+            Guid id,
+            CreateWorkItemCommentRequest request)
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var comment = await _commentService.CreateAsync(
+                id,
+                userId,
+                request);
+
+            if (comment is null)
+            {
+                return NotFound();
+            }
+
+            return StatusCode(
+                StatusCodes.Status201Created,
+                comment);
+        }
+
+        [HttpPut("{id:guid}/comments/{commentId:guid}")]
+        public async Task<ActionResult<WorkItemCommentResponse>> UpdateComment(Guid id, Guid commentId, UpdateWorkItemCommentRequest request)
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await _commentService.UpdateAsync(id, commentId, userId, request);
+
+            return result.Status switch
+            {
+                WorkItemCommentOperationStatus.Success =>
+                    Ok(result.Comment),
+
+                WorkItemCommentOperationStatus.NotFound =>
+                    NotFound(),
+
+                WorkItemCommentOperationStatus.Forbidden =>
+                    Forbid(),
+
+                _ => StatusCode(
+                    StatusCodes.Status500InternalServerError)
+            };
+        }
+
+        [HttpDelete("{id:guid}/comments/{commentId:guid}")]
+        public async Task<IActionResult> DeleteComment(Guid id, Guid commentId)
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var isAdmin = User.IsInRole(AppRoles.Admin);
+
+            var result = await _commentService.DeleteAsync(id, commentId, userId, isAdmin);
+
+            return result.Status switch
+            {
+                WorkItemCommentOperationStatus.Success =>
+                    NoContent(),
+
+                WorkItemCommentOperationStatus.NotFound =>
+                    NotFound(),
+
+                WorkItemCommentOperationStatus.Forbidden =>
+                    Forbid(),
+
+                _ => StatusCode(
+                    StatusCodes.Status500InternalServerError)
             };
         }
     }

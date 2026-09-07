@@ -30,7 +30,9 @@ namespace WorkflowManagement.Infrastructure.Authentication
 
                 new("displayName", displayName),
 
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+
+                new(ClaimTypes.NameIdentifier, userId.ToString()),
             };
 
             claims.AddRange(
