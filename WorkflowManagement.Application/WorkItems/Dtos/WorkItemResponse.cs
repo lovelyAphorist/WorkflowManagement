@@ -1,4 +1,5 @@
 ﻿using WorkflowManagement.Domain.Enums;
+using WorkflowManagement.Application.Users.Dtos;
 
 namespace WorkflowManagement.Application.WorkItems.Dtos
 {
@@ -13,5 +14,6 @@ namespace WorkflowManagement.Application.WorkItems.Dtos
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
         public Guid? AssigneeId { get; set; }
+        public UserSummaryResponse? Assignee { get; set; }
     }
 }

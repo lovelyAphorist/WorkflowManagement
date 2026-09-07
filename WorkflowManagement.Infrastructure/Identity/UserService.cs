@@ -132,5 +132,23 @@ namespace WorkflowManagement.Infrastructure.Identity
                 })
                 .SingleOrDefaultAsync();
         }
+
+        public async Task<IReadOnlyList<UserResponse>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            var userIds = ids
+                .Distinct()
+                .ToList();
+
+            return await _userManager.Users
+                .AsNoTracking()
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new UserResponse
+                {
+                    Id = u.Id,
+                    DisplayName = u.DisplayName,
+                    Email = u.Email!
+                })
+                .ToListAsync();
+        }
     }
 }

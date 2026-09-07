@@ -42,24 +42,50 @@ namespace WorkflowManagement.Application.WorkItems.Services
         public async Task<WorkItemResponse?> GetByIdAsync(Guid id)
         {
             var workItem = await _repository.GetByIdAsync(id);
+
             if (workItem is null)
             {
                 return null;
             }
-            return MapToResponse(workItem);
+
+            return await MapToResponseWithAssigneeAsync(workItem);
         }
 
-        public async Task<PagedResult<WorkItemResponse>> GetAllAsync(
-            WorkItemQueryRequest query)
+        public async Task<PagedResult<WorkItemResponse>> GetAllAsync(WorkItemQueryRequest query)
         {
             var result = await _repository.GetAllAsync(query);
 
+            var assigneeIds = result.Items
+                .Where(w => w.AssigneeId.HasValue)
+                .Select(w => w.AssigneeId!.Value)
+                .Distinct()
+                .ToList();
+
+            IReadOnlyList<UserResponse> assignees = assigneeIds.Count == 0
+                ? []
+                : await _userService.GetByIdsAsync(assigneeIds);
+
+            var assigneeLookup = assignees.ToDictionary(u => u.Id);
+
+            var items = result.Items
+                .Select(workItem =>
+                {
+                    UserResponse? assignee = null;
+
+                    if (workItem.AssigneeId.HasValue)
+                    {
+                        assigneeLookup.TryGetValue(
+                            workItem.AssigneeId.Value,
+                            out assignee);
+                    }
+
+                    return MapToResponse(workItem, assignee);
+                })
+                .ToList();
+
             return new PagedResult<WorkItemResponse>
             {
-                Items = result.Items
-                    .Select(MapToResponse)
-                    .ToList(),
-
+                Items = items,
                 Page = result.Page,
                 PageSize = result.PageSize,
                 TotalCount = result.TotalCount,
@@ -162,7 +188,7 @@ namespace WorkflowManagement.Application.WorkItems.Services
             var updatedWorkItem =
                 await _repository.UpdateAsync(workItem, historyEntries);
 
-            return MapToResponse(updatedWorkItem);
+            return await MapToResponseWithAssigneeAsync(updatedWorkItem);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -192,6 +218,21 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 CreatedAtUtc = workItem.CreatedAtUtc,
                 UpdatedAtUtc = workItem.UpdatedAtUtc
             };
+        }
+        private static WorkItemResponse MapToResponse(WorkItem workItem, UserResponse? assignee)
+        {
+            var response = MapToResponse(workItem);
+
+            if (assignee is not null)
+            {
+                response.Assignee = new UserSummaryResponse
+                {
+                    Id = assignee.Id,
+                    DisplayName = assignee.DisplayName
+                };
+            }
+
+            return response;
         }
         private static WorkItemHistoryResponse MapHistoryToResponse(WorkItemHistory history)
         {
@@ -236,7 +277,7 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 return new AssignWorkItemResult
                 {
                     Status = AssignWorkItemStatus.Success,
-                    WorkItem = MapToResponse(workItem)
+                    WorkItem = await MapToResponseWithAssigneeAsync(workItem)
                 };
             }
 
@@ -277,7 +318,7 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 NewValue = newAssignee?.DisplayName,
                 ChangedAtUtc = changedAtUtc
             }
-    };
+                };
             workItem.AssigneeId = request.AssigneeId;
             workItem.UpdatedAtUtc = changedAtUtc;
 
@@ -286,8 +327,21 @@ namespace WorkflowManagement.Application.WorkItems.Services
             return new AssignWorkItemResult
             {
                 Status = AssignWorkItemStatus.Success,
-                WorkItem = MapToResponse(updatedWorkItem)
+                WorkItem = await MapToResponseWithAssigneeAsync(updatedWorkItem)
             };
+        }
+        private async Task<WorkItemResponse> MapToResponseWithAssigneeAsync(
+    WorkItem workItem)
+        {
+            UserResponse? assignee = null;
+
+            if (workItem.AssigneeId.HasValue)
+            {
+                assignee = await _userService.GetByIdAsync(
+                    workItem.AssigneeId.Value);
+            }
+
+            return MapToResponse(workItem, assignee);
         }
     }
 }

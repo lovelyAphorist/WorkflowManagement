@@ -8,5 +8,6 @@ namespace WorkflowManagement.Application.Users.Services
         Task<LoginResult> LoginAsync(LoginRequest request);
         Task<IReadOnlyList<UserResponse>> GetAllAsync();
         Task<UserResponse?> GetByIdAsync(Guid id);
+        Task<IReadOnlyList<UserResponse>> GetByIdsAsync(IEnumerable<Guid> ids);
     }
 }
