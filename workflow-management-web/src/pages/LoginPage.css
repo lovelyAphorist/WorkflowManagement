@@ -1,0 +1,100 @@
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    background: radial-gradient( circle at top left, #e8eefc 0, transparent 35% ), #f5f7fb;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    padding: 2.5rem;
+    background: #ffffff;
+    border: 1px solid #e4e7ec;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(16, 24, 40, 0.10);
+}
+
+.login-heading {
+    margin-bottom: 2rem;
+}
+
+.login-eyebrow {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4f46e5;
+}
+
+.login-heading h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #101828;
+}
+
+.login-heading p {
+    margin: 0.75rem 0 0;
+    line-height: 1.6;
+    color: #667085;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+    .form-field label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #344054;
+    }
+
+    .form-field input {
+        padding: 0.8rem 0.9rem;
+        border: 1px solid #d0d5dd;
+        border-radius: 8px;
+        font: inherit;
+        color: #101828;
+        background: #ffffff;
+    }
+
+        .form-field input:focus {
+            outline: 2px solid #c7d2fe;
+            border-color: #6366f1;
+        }
+
+.login-card button {
+    width: 100%;
+    padding: 0.85rem;
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 700;
+    color: white;
+    background: #4f46e5;
+    cursor: pointer;
+}
+
+    .login-card button:hover {
+        background: #4338ca;
+    }
+
+    .login-card button:disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+
+.login-error {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #fef3f2;
+    color: #b42318;
+    font-size: 0.9rem;
+}
