@@ -2,6 +2,7 @@
 using WorkflowManagement.Application.Users.Dtos;
 using WorkflowManagement.Application.Users.Services;
 using WorkflowManagement.Application.WorkItems.Dtos;
+using WorkflowManagement.Application.WorkItems.Enums;
 using WorkflowManagement.Application.WorkItems.Repositories;
 using WorkflowManagement.Domain.Entities;
 
@@ -68,6 +69,19 @@ namespace WorkflowManagement.Application.WorkItems.Services
                 }
             };
         }
+        private async Task<WorkItemCommentResponse>MapToResponseWithAuthorAsync(WorkItemComment comment)
+        {
+            var author =
+                await _userService.GetByIdAsync(comment.AuthorId);
+
+            if (author is null)
+            {
+                throw new InvalidOperationException(
+                    "Comment author could not be found.");
+            }
+
+            return MapToResponse(comment, author);
+        }
         public async Task<IReadOnlyList<WorkItemCommentResponse>?> GetAllAsync(Guid workItemId)
         {
             var workItem =
@@ -103,6 +117,82 @@ namespace WorkflowManagement.Application.WorkItems.Services
             }
 
             return results;
+        }
+        public async Task<WorkItemCommentOperationResult> UpdateAsync(Guid workItemId, Guid commentId, Guid userId, UpdateWorkItemCommentRequest request)
+        {
+            var comment =
+                await _commentRepository.GetByIdAsync(commentId);
+
+            if (comment is null || comment.WorkItemId != workItemId)
+            {
+                return new WorkItemCommentOperationResult
+                {
+                    Status = WorkItemCommentOperationStatus.NotFound
+                };
+            }
+
+            if (comment.AuthorId != userId)
+            {
+                return new WorkItemCommentOperationResult
+                {
+                    Status = WorkItemCommentOperationStatus.Forbidden
+                };
+            }
+
+            var newBody = request.Body.Trim();
+
+            if (comment.Body == newBody)
+            {
+                var existingResponse =
+                    await MapToResponseWithAuthorAsync(comment);
+
+                return new WorkItemCommentOperationResult
+                {
+                    Status = WorkItemCommentOperationStatus.Success,
+                    Comment = existingResponse
+                };
+            }
+
+            comment.Body = newBody;
+            comment.EditedAtUtc = DateTime.UtcNow;
+
+            var updatedComment =
+                await _commentRepository.UpdateAsync(comment);
+
+            return new WorkItemCommentOperationResult
+            {
+                Status = WorkItemCommentOperationStatus.Success,
+                Comment = await MapToResponseWithAuthorAsync(
+                    updatedComment)
+            };
+        }
+        public async Task<WorkItemCommentOperationResult> DeleteAsync(Guid workItemId, Guid commentId, Guid userId, bool isAdmin)
+        {
+            var comment =
+                await _commentRepository.GetByIdAsync(commentId);
+
+            if (comment is null || comment.WorkItemId != workItemId)
+            {
+                return new WorkItemCommentOperationResult
+                {
+                    Status = WorkItemCommentOperationStatus.NotFound
+                };
+            }
+
+            if (comment.AuthorId != userId && !isAdmin)
+            {
+                return new WorkItemCommentOperationResult
+                {
+                    Status = WorkItemCommentOperationStatus.Forbidden
+                };
+            }
+
+            await _commentRepository.DeleteAsync(comment);
+
+            return new WorkItemCommentOperationResult
+            {
+                Status = WorkItemCommentOperationStatus.Success
+            };
         }
     }
 }

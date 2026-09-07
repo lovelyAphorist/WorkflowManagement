@@ -35,5 +35,26 @@ namespace WorkflowManagement.Infrastructure.Repositories
                 .OrderBy(c => c.CreatedAtUtc)
                 .ToListAsync();
         }
+
+        public async Task<WorkItemComment?> GetByIdAsync(Guid id)
+        {
+            return await _context.WorkItemComments.FindAsync(id);
+        }
+
+        public async Task<WorkItemComment> UpdateAsync(
+            WorkItemComment comment)
+        {
+            await _context.SaveChangesAsync();
+
+            return comment;
+        }
+
+        public async Task DeleteAsync(
+            WorkItemComment comment)
+        {
+            _context.WorkItemComments.Remove(comment);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
