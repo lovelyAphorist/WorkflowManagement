@@ -18,3 +18,22 @@ textarea,
 select {
     font: inherit;
 }
+.priority-low {
+    background: #ecfdf3;
+    color: #027a48;
+}
+
+.priority-medium {
+    background: #eff8ff;
+    color: #175cd3;
+}
+
+.priority-high {
+    background: #fffaeb;
+    color: #b54708;
+}
+
+.priority-critical {
+    background: #fef3f2;
+    color: #b42318;
+}

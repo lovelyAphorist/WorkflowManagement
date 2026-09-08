@@ -4,6 +4,14 @@
     color: #101828;
 }
 
+.work-item-link {
+    color: #101828;
+    text-decoration: none;
+}
+
+.work-item-link:hover {
+    color: #4f46e5;
+}
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -165,26 +173,6 @@
     font-weight: 700;
 }
 
-.priority-low {
-    background: #ecfdf3;
-    color: #027a48;
-}
-
-.priority-medium {
-    background: #eff8ff;
-    color: #175cd3;
-}
-
-.priority-high {
-    background: #fffaeb;
-    color: #b54708;
-}
-
-.priority-critical {
-    background: #fef3f2;
-    color: #b42318;
-}
-
 .dashboard-message {
     padding: 2rem;
     text-align: center;
@@ -215,4 +203,5 @@
         flex-wrap: wrap;
         gap: 1rem;
     }
+
 }

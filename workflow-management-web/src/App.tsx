@@ -1,9 +1,5 @@
-import {
-    Navigate,
-    Route,
-    Routes
-} from 'react-router-dom';
-
+import {Navigate,Route,Routes} from 'react-router-dom';
+import WorkItemDetailsPage from './pages/WorkItemDetailsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
@@ -32,6 +28,14 @@ function App() {
                         to="/dashboard"
                         replace
                     />
+                }
+            />
+            <Route
+                path="/work-items/:id"
+                element={
+                    <ProtectedRoute>
+                        <WorkItemDetailsPage />
+                    </ProtectedRoute>
                 }
             />
         </Routes>
