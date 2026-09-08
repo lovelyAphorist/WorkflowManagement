@@ -1,27 +1,9 @@
-import {
-    useEffect,
-    useState
-} from 'react';
-
-import { useNavigate } from 'react-router-dom';
-
-import {
-    ApiError
-} from '../api/apiClient';
-
-import {
-    getWorkItems
-} from '../api/workItemsApi';
-
-import {
-    useAuth
-} from '../auth/AuthContext';
-
-import type {
-    PagedResult,
-    WorkItem
-} from '../types/workItem';
-
+import {useEffect,useState} from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {ApiError} from '../api/apiClient';
+import {getWorkItems} from '../api/workItemsApi';
+import {useAuth} from '../auth/AuthContext';
+import type {PagedResult,WorkItem} from '../types/workItem';
 import './DashboardPage.css';
 
 function DashboardPage() {
@@ -187,7 +169,12 @@ function DashboardPage() {
                                             <div className="work-item-main">
                                                 <div className="work-item-title-row">
                                                     <h3>
-                                                        {workItem.title}
+                                                        <Link
+                                                            to={`/work-items/${workItem.id}`}
+                                                            className="work-item-link"
+                                                        >
+                                                            {workItem.title}
+                                                        </Link>
                                                     </h3>
 
                                                     <span

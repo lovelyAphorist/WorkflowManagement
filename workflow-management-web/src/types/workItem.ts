@@ -12,6 +12,30 @@ export type WorkItemPriority =
     | 'High'
     | 'Critical';
 
+export type WorkItemChangeType =
+    | 'Title'
+    | 'Description'
+    | 'Status'
+    | 'Priority'
+    | 'DueDate'
+    | 'Assignee';
+
+export interface WorkItemComment {
+    id: string;
+    body: string;
+    author: UserSummary;
+    createdAtUtc: string;
+    editedAtUtc: string | null;
+}
+
+export interface WorkItemHistory {
+    id: string;
+    changeType: WorkItemChangeType;
+    oldValue: string | null;
+    newValue: string | null;
+    changedAtUtc: string;
+}
+
 export interface UserSummary {
     id: string;
     displayName: string;
