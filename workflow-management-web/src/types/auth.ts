@@ -14,5 +14,6 @@ export interface LoginResult {
     token: string;
     expiresAtUtc: string;
     user: User;
+    roles: string[];
     errors: string[];
 }

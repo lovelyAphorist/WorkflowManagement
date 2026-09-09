@@ -7,5 +7,6 @@
         public DateTime? ExpiresAtUtc { get; set; }
         public UserResponse? User { get; set; }
         public IReadOnlyList<string> Errors { get; set; } = [];
+        public IReadOnlyList<string> Roles { get; set; } = [];
     }
 }

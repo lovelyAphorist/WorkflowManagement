@@ -1,5 +1,5 @@
 import { apiRequest } from './apiClient';
-import type {PagedResult,WorkItem,WorkItemComment,WorkItemHistory} from '../types/workItem';
+import type { PagedResult, WorkItem, WorkItemComment, WorkItemHistory, UpdateWorkItemRequest, } from '../types/workItem';
 
 export async function getWorkItemById(
     id: string,
@@ -37,5 +37,54 @@ export async function getWorkItemHistory(
     return apiRequest<WorkItemHistory[]>(
         `/api/work-items/${id}/history`,
         token
+    );
+}
+
+export async function createWorkItemComment(
+    id: string,
+    body: string,
+    token: string
+): Promise<WorkItemComment> {
+    return apiRequest<WorkItemComment>(
+        `/api/work-items/${id}/comments`,
+        token,
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                body
+            })
+        }
+    );
+}
+
+export async function updateWorkItem(
+    id: string,
+    request: UpdateWorkItemRequest,
+    token: string
+): Promise<WorkItem> {
+    return apiRequest<WorkItem>(
+        `/api/work-items/${id}`,
+        token,
+        {
+            method: 'PUT',
+            body: JSON.stringify(request)
+        }
+    );
+}
+
+export async function assignWorkItem(
+    id: string,
+    assigneeId: string | null,
+    token: string
+): Promise<WorkItem> {
+    return apiRequest<WorkItem>(
+        `/api/work-items/${id}/assignee`,
+        token,
+        {
+            method: 'PUT',
+            body: JSON.stringify({
+                assigneeId
+            })
+        }
     );
 }

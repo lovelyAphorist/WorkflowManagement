@@ -59,7 +59,7 @@ namespace WorkflowManagement.Infrastructure.Identity
         {
             var user = await _userManager.FindByEmailAsync(
                 request.Email.Trim());
-            var roles = await _userManager.GetRolesAsync(user);
+            
 
             if (user is null)
             {
@@ -75,6 +75,7 @@ namespace WorkflowManagement.Infrastructure.Identity
             {
                 return InvalidLogin();
             }
+            var roles = await _userManager.GetRolesAsync(user);
 
             var token = _tokenService.GenerateToken(
                 user.Id,
@@ -87,6 +88,7 @@ namespace WorkflowManagement.Infrastructure.Identity
                 Succeeded = true,
                 Token = token.Token,
                 ExpiresAtUtc = token.ExpiresAtUtc,
+                Roles = roles.ToList(),
                 User = new UserResponse
                 {
                     Id = user.Id,
