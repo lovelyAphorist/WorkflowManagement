@@ -61,3 +61,11 @@ export interface PagedResult<T> {
     totalCount: number;
     totalPages: number;
 }
+
+export interface UpdateWorkItemRequest {
+    title: string;
+    description: string | null;
+    status: WorkItemStatus;
+    priority: WorkItemPriority;
+    dueDate: string | null;
+}

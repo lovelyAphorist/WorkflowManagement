@@ -1,43 +1,45 @@
-import {
-    createContext,
-    useContext,
-    useMemo,
-    useState
-} from 'react';
+import { createContext, useContext, useState } from 'react';
 
 import type { ReactNode } from 'react';
 import type { LoginRequest, User } from '../types/auth';
+
 import { login as loginApi } from '../api/authApi';
 
 interface AuthState {
     token: string;
     expiresAtUtc: string;
     user: User;
+    roles: string[];
 }
 
 interface AuthContextValue {
     user: User | null;
     token: string | null;
+    roles: string[];
     isAuthenticated: boolean;
+    isAdmin: boolean;
     login: (request: LoginRequest) => Promise<void>;
     logout: () => void;
 }
 
 const STORAGE_KEY = 'workflow-management-auth';
 
-const AuthContext = createContext<AuthContextValue | undefined>(
-    undefined
-);
+const AuthContext =
+    createContext<AuthContextValue | undefined>(
+        undefined
+    );
 
 function loadStoredAuth(): AuthState | null {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
+    const stored =
+        sessionStorage.getItem(STORAGE_KEY);
 
     if (!stored) {
         return null;
     }
 
     try {
-        const auth = JSON.parse(stored) as AuthState;
+        const auth =
+            JSON.parse(stored) as AuthState;
 
         const expiresAt =
             new Date(auth.expiresAtUtc).getTime();
@@ -47,7 +49,10 @@ function loadStoredAuth(): AuthState | null {
             return null;
         }
 
-        return auth;
+        return {
+            ...auth,
+            roles: auth.roles ?? []
+        };
     }
     catch {
         sessionStorage.removeItem(STORAGE_KEY);
@@ -61,15 +66,21 @@ export function AuthProvider({
     children: ReactNode;
 }) {
     const [auth, setAuth] =
-        useState<AuthState | null>(() => loadStoredAuth());
+        useState<AuthState | null>(
+            () => loadStoredAuth()
+        );
 
-    async function login(request: LoginRequest) {
-        const result = await loginApi(request);
+    async function login(
+        request: LoginRequest
+    ) {
+        const result =
+            await loginApi(request);
 
         const nextAuth: AuthState = {
             token: result.token,
             expiresAtUtc: result.expiresAtUtc,
-            user: result.user
+            user: result.user,
+            roles: result.roles
         };
 
         sessionStorage.setItem(
@@ -81,30 +92,35 @@ export function AuthProvider({
     }
 
     function logout() {
-        sessionStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(
+            STORAGE_KEY
+        );
+
         setAuth(null);
     }
 
-    const value = useMemo<AuthContextValue>(
-        () => ({
-            user: auth?.user ?? null,
-            token: auth?.token ?? null,
-            isAuthenticated: auth !== null,
-            login,
-            logout
-        }),
-        [auth]
-    );
+    const value: AuthContextValue = {
+        user: auth?.user ?? null,
+        token: auth?.token ?? null,
+        roles: auth?.roles ?? [],
+        isAuthenticated: auth !== null,
+        isAdmin:
+            auth?.roles.includes('Admin') ??
+            false,
+        login,
+        logout
+    };
 
     return (
-        <AuthContext.Provider value= { value } >
-        { children }
+        <AuthContext.Provider value={value}>
+            {children}
         </AuthContext.Provider>
     );
 }
 
 export function useAuth() {
-    const context = useContext(AuthContext);
+    const context =
+        useContext(AuthContext);
 
     if (!context) {
         throw new Error(
