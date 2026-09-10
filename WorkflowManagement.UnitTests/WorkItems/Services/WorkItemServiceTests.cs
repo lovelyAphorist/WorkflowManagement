@@ -211,5 +211,59 @@ namespace WorkflowManagement.UnitTests.WorkItems.Services
                         )),
                 Times.Once);
         }
+
+        [Fact]
+        public async Task UpdateAsync_WhenNothingChanges_DoesNotCallRepositoryUpdate()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+
+            var originalUpdatedAt =
+                DateTime.UtcNow.AddDays(-1);
+
+            var workItem = new WorkItem
+            {
+                Id = id,
+                Title = "Test work item",
+                Description = "Description",
+                Status = WorkItemStatus.InProgress,
+                Priority = WorkItemPriority.High,
+                DueDate = new DateOnly(2026, 9, 20),
+                CreatedAtUtc = DateTime.UtcNow.AddDays(-2),
+                UpdatedAtUtc = originalUpdatedAt
+            };
+
+            var request = new UpdateWorkItemRequest
+            {
+                Title = workItem.Title,
+                Description = workItem.Description,
+                Status = workItem.Status,
+                Priority = workItem.Priority,
+                DueDate = workItem.DueDate
+            };
+
+            _repositoryMock
+                .Setup(repository =>
+                    repository.GetByIdAsync(id))
+                .ReturnsAsync(workItem);
+
+            // Act
+            var result =
+                await _service.UpdateAsync(id, request);
+
+            // Assert
+            Assert.NotNull(result);
+
+            Assert.Equal(
+                originalUpdatedAt,
+                result.UpdatedAtUtc);
+
+            _repositoryMock.Verify(
+                repository =>
+                    repository.UpdateAsync(
+                        It.IsAny<WorkItem>(),
+                        It.IsAny<IReadOnlyCollection<WorkItemHistory>>()),
+                Times.Never);
+        }
     }
 }
