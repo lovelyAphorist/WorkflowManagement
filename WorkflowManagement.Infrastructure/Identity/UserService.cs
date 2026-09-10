@@ -19,7 +19,7 @@ namespace WorkflowManagement.Infrastructure.Identity
         }
 
         public async Task<RegisterUserResult> RegisterAsync(
-            RegisterUserRequest request)
+      RegisterUserRequest request)
         {
             var user = new ApplicationUser
             {
@@ -29,9 +29,26 @@ namespace WorkflowManagement.Infrastructure.Identity
                 Email = request.Email.Trim()
             };
 
+            // Create the Identity user FIRST.
+            var result = await _userManager.CreateAsync(
+                user,
+                request.Password);
+
+            if (!result.Succeeded)
+            {
+                return new RegisterUserResult
+                {
+                    Succeeded = false,
+                    Errors = result.Errors
+                        .Select(e => e.Description)
+                        .ToList()
+                };
+            }
+
+            // Only assign the role after the user exists.
             var roleResult = await _userManager.AddToRoleAsync(
-    user,
-    AppRoles.Member);
+                user,
+                AppRoles.Member);
 
             if (!roleResult.Succeeded)
             {
@@ -55,6 +72,7 @@ namespace WorkflowManagement.Infrastructure.Identity
                 }
             };
         }
+
         public async Task<LoginResult> LoginAsync(LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(

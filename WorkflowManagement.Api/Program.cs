@@ -77,8 +77,6 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IWorkItemCommentRepository,WorkItemCommentRepository>();
 builder.Services.AddScoped<IWorkItemCommentService, WorkItemCommentService>();
 
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
-
 var jwtOptions = builder.Configuration
     .GetSection("Jwt")
     .Get<JwtOptions>()

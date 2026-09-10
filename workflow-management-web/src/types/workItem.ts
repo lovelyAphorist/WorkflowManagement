@@ -69,3 +69,10 @@ export interface UpdateWorkItemRequest {
     priority: WorkItemPriority;
     dueDate: string | null;
 }
+
+export interface CreateWorkItemRequest {
+    title: string;
+    description: string | null;
+    priority: WorkItemPriority;
+    dueDate: string | null;
+}

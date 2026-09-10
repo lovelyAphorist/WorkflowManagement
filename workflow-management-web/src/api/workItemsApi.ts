@@ -1,5 +1,5 @@
 import { apiRequest } from './apiClient';
-import type { PagedResult, WorkItem, WorkItemComment, WorkItemHistory, UpdateWorkItemRequest, } from '../types/workItem';
+import type { CreateWorkItemRequest, PagedResult, WorkItem, WorkItemComment, WorkItemHistory, UpdateWorkItemRequest, } from '../types/workItem';
 
 export async function getWorkItemById(
     id: string,
@@ -88,3 +88,18 @@ export async function assignWorkItem(
         }
     );
 }
+
+export async function createWorkItem(
+    request: CreateWorkItemRequest,
+    token: string
+): Promise<WorkItem> {
+    return apiRequest<WorkItem>(
+        '/api/work-items',
+        token,
+        {
+            method: 'POST',
+            body: JSON.stringify(request)
+        }
+    );
+}
+

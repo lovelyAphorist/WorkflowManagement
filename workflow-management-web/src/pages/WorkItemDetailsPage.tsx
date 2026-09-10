@@ -64,9 +64,6 @@ function WorkItemDetailsPage() {
     const [users, setUsers] =
         useState<User[]>([]);
 
-    const [selectedAssigneeId, setSelectedAssigneeId] =
-        useState('');
-
     const [isSavingAssignee, setIsSavingAssignee] =
         useState(false);
 
@@ -154,8 +151,7 @@ function WorkItemDetailsPage() {
 
         async function loadUsers() {
             try {
-                const data =
-                    await getUsers(token!);
+                const data = await getUsers(token!);
 
                 if (!cancelled) {
                     setUsers(data);
@@ -183,18 +179,14 @@ function WorkItemDetailsPage() {
             }
         }
 
-        useEffect(() => {
-            setSelectedAssigneeId(
-                workItem?.assigneeId ?? ''
-            );
-        }, [workItem?.assigneeId]);
-
         loadUsers();
 
         return () => {
             cancelled = true;
         };
     }, [token, isAdmin, logout, navigate]);
+
+
 
     async function handleAddComment() {
         if (!id || !token) {
@@ -269,9 +261,6 @@ function WorkItemDetailsPage() {
                 );
 
             setWorkItem(updated);
-            setSelectedAssigneeId(
-                updated.assigneeId ?? ''
-            );
 
             const updatedHistory =
                 await getWorkItemHistory(
@@ -767,27 +756,16 @@ function WorkItemDetailsPage() {
                         <h2>Details</h2>
 
                         <dl className="details-list">
-                            {assigneeError && (
-                                <div className="details-inline-error">
-                                    {assigneeError}
-                                </div>
-                            )}
                             <div>
                                 <dt>Status</dt>
-
                                 <dd>
-                                    {formatStatus(
-                                        workItem.status
-                                    )}
+                                    {formatStatus(workItem.status)}
                                 </dd>
                             </div>
 
                             <div>
                                 <dt>Priority</dt>
-
-                                <dd>
-                                    {workItem.priority}
-                                </dd>
+                                <dd>{workItem.priority}</dd>
                             </div>
 
                             <div>
@@ -797,7 +775,7 @@ function WorkItemDetailsPage() {
                                     {isAdmin ? (
                                         <select
                                             className="assignee-select"
-                                            value={selectedAssigneeId}
+                                            value={workItem.assigneeId ?? ''}
                                             disabled={isSavingAssignee}
                                             onChange={(event) =>
                                                 void handleAssigneeChange(
@@ -819,8 +797,7 @@ function WorkItemDetailsPage() {
                                             ))}
                                         </select>
                                     ) : (
-                                        workItem.assignee
-                                            ?.displayName ??
+                                        workItem.assignee?.displayName ??
                                         'Unassigned'
                                     )}
                                 </dd>
@@ -828,24 +805,24 @@ function WorkItemDetailsPage() {
 
                             <div>
                                 <dt>Due date</dt>
-
                                 <dd>
-                                    {formatDueDate(
-                                        workItem.dueDate
-                                    )}
+                                    {formatDueDate(workItem.dueDate)}
                                 </dd>
                             </div>
 
                             <div>
                                 <dt>Created</dt>
-
                                 <dd>
-                                    {formatDateTime(
-                                        workItem.createdAtUtc
-                                    )}
+                                    {formatDateTime(workItem.createdAtUtc)}
                                 </dd>
                             </div>
                         </dl>
+
+                        {assigneeError && (
+                            <div className="details-inline-error">
+                                {assigneeError}
+                            </div>
+                        )}
                     </section>
 
                     <section className="details-card">
