@@ -45,7 +45,11 @@ builder.Services.AddSwaggerGen(options =>
 // Database.
 builder.Services.AddDbContext<WorkflowManagementDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure();
+        }));
 
 // Required by ASP.NET Identity token providers.
 builder.Services.AddDataProtection();
@@ -140,13 +144,21 @@ if (!app.Environment.IsEnvironment("Testing"))
 {
     using var scope = app.Services.CreateScope();
 
+    var dbContext =
+        scope.ServiceProvider
+            .GetRequiredService<WorkflowManagementDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+
     var roleManager =
         scope.ServiceProvider
-            .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+            .GetRequiredService<
+                RoleManager<IdentityRole<Guid>>>();
 
     var userManager =
         scope.ServiceProvider
-            .GetRequiredService<UserManager<ApplicationUser>>();
+            .GetRequiredService<
+                UserManager<ApplicationUser>>();
 
     await IdentitySeeder.SeedRolesAsync(
         roleManager,
