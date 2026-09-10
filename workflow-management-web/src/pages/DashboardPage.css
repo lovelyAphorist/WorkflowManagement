@@ -205,3 +205,108 @@
     }
 
 }
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.new-work-item-button,
+.create-button {
+    padding: 0.7rem 1rem;
+    border: 0;
+    border-radius: 8px;
+    background: #4f46e5;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .new-work-item-button:hover,
+    .create-button:hover {
+        background: #4338ca;
+    }
+
+.new-work-item {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+.new-work-item-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+    .new-work-item-heading h2 {
+        margin: 0;
+    }
+
+    .new-work-item-heading p {
+        margin: 0.35rem 0 0;
+        color: #667085;
+    }
+
+.close-form-button {
+    border: 0;
+    background: transparent;
+    color: #667085;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.new-work-item-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+    .new-work-item-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        color: #344054;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .new-work-item-form input,
+    .new-work-item-form textarea,
+    .new-work-item-form select {
+        width: 100%;
+        padding: 0.75rem 0.85rem;
+        border: 1px solid #d0d5dd;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #101828;
+        font: inherit;
+        font-weight: 400;
+    }
+
+.new-work-item-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.new-work-item-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+@media (max-width: 700px) {
+    .section-heading {
+        flex-direction: column;
+    }
+
+    .new-work-item-grid {
+        grid-template-columns: 1fr;
+    }
+}

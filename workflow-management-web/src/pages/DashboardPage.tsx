@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import {ApiError} from '../api/apiClient';
 import {getWorkItems} from '../api/workItemsApi';
 import {useAuth} from '../auth/AuthContext';
-import type {PagedResult,WorkItem} from '../types/workItem';
+import type { PagedResult, WorkItem } from '../types/workItem';
 import './DashboardPage.css';
-
+import NewWorkItemForm from '../components/NewWorkItemForm';
 function DashboardPage() {
     const {
         user,
@@ -23,6 +23,31 @@ function DashboardPage() {
 
     const [error, setError] =
         useState<string | null>(null);
+
+    const [isCreating, setIsCreating] =
+        useState(false);
+
+    async function handleCreated() {
+        if (!token) {
+            return;
+        }
+
+        setIsCreating(false);
+
+        try {
+            const data =
+                await getWorkItems(token);
+
+            setResult(data);
+        }
+        catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : 'Unable to refresh work items.'
+            );
+        }
+    }
 
     useEffect(() => {
         if (!token) {
@@ -123,17 +148,41 @@ function DashboardPage() {
                         </strong>
                     </div>
                 </section>
-
                 <section className="work-items-section">
                     <div className="section-heading">
                         <div>
                             <h2>Recent work</h2>
+
                             <p>
                                 Recently updated work items
                                 across the workspace.
                             </p>
                         </div>
+
+                        <button
+                            type="button"
+                            className="new-work-item-button"
+                            onClick={() => setIsCreating(true)}
+                        >
+                            + New work item
+                        </button>
                     </div>
+
+                    {isCreating && token && (
+                        <NewWorkItemForm
+                            token={token}
+                            onCreated={() =>
+                                void handleCreated()
+                            }
+                            onCancel={() =>
+                                setIsCreating(false)
+                            }
+                            onUnauthorized={() => {
+                                logout();
+                                navigate('/login');
+                            }}
+                        />
+                    )}
 
                     {isLoading && (
                         <div className="dashboard-message">

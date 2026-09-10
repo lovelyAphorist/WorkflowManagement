@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WorkflowManagement.Application.Users.Constants;
 using WorkflowManagement.Application.Users.Dtos;
 using WorkflowManagement.Application.Users.Services;
 
@@ -7,7 +8,7 @@ namespace WorkflowManagement.Api.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    [Authorize]
+    [Authorize(Roles = AppRoles.Admin)]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
