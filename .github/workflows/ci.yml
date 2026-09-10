@@ -54,3 +54,21 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+
+    env:
+      JWT_KEY: integration-ci-docker-key-that-is-long-enough-12345
+      SA_PASSWORD: WorkflowCI_2026!TestPassword
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose
+        run: docker compose config
+
+      - name: Build Docker images
+        run: docker compose build

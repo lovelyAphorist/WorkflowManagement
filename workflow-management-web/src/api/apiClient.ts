@@ -1,4 +1,11 @@
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const configuredApiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL;
+
+const apiBaseUrl =
+    configuredApiBaseUrl &&
+        configuredApiBaseUrl !== 'undefined'
+        ? configuredApiBaseUrl.replace(/\/$/, '')
+        : '';
 
 export class ApiError extends Error {
     status: number;
@@ -51,7 +58,7 @@ export async function apiRequest<T>(
                 message;
         }
         catch {
-            // Response did not contain JSON.
+            // Response was not JSON.
         }
 
         throw new ApiError(

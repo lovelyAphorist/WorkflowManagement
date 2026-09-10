@@ -1,0 +1,43 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: workflow-management-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD}"
+    volumes:
+      - workflow-management-sql-data:/var/opt/mssql
+    ports:
+      - "14330:1433"
+
+  api:
+    build:
+      context: .
+      dockerfile: WorkflowManagement.Api/Dockerfile
+    container_name: workflow-management-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=WorkflowManagementDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;Encrypt=False"
+
+      Jwt__Key: "${JWT_KEY}"
+      Jwt__Issuer: "WorkflowManagement.Api"
+      Jwt__Audience: "WorkflowManagement.Web"
+      Jwt__ExpirationMinutes: "60"
+    depends_on:
+      - sqlserver
+    ports:
+      - "8081:8080"
+
+  frontend:
+    build:
+      context: ./workflow-management-web
+      dockerfile: Dockerfile
+    container_name: workflow-management-web
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  workflow-management-sql-data:
